@@ -1,0 +1,16 @@
+.land {
+  fill: #E5E5E5;
+  stroke: #777;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.border {
+  fill: none;
+  stroke: #777;
+}
+
+.county {
+  stroke: #999;
+  stroke-width: .5;
+}
