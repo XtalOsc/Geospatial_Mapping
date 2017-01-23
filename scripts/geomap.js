@@ -10,10 +10,9 @@ var svg = d3.select("body").append("svg")
             .attr("width", width)
             .attr("height", height);
 
-//define color pallette using colorbrewer
-var color = d3.scale.quantize()
-                    .domain([0, .15])
-                    .range(colorbrewer.Greens[7]);
+var radius = d3.scale.sqrt()
+                     .domain([0, 1e6])
+                     .range([0, 15]);
 
 d3.json("./data/us.json", function(error, us) {
     if (error) return console.error(error);
@@ -39,6 +38,6 @@ d3.json("./data/us.json", function(error, us) {
        })
        .enter().append("circle")
        .attr("transform", function(d) { return "translate(" + path.centroid(d) + ")"; })
-       .attr("r", function(d) { return Math.sqrt(parseFloat(d.properties.profit) * 0.00005) });
+       .attr("r", function(d) { return radius(d.properties.profit); });
 
   });//end d3.json function
