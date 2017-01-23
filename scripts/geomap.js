@@ -6,47 +6,35 @@ var width = 960,
 var path = d3.geo.path()
              .projection(null);
 
-var radius = d3.scale.sqrt()
-                     .domain([0, 1e6])
-                     .range([0, 15]);
-
 var svg = d3.select("body").append("svg")
             .attr("width", width)
             .attr("height", height);
-
-//map profit-by-county for merge
-var rateById = d3.map();
 
 //define color pallette using colorbrewer
 var color = d3.scale.quantize()
                     .domain([0, .15])
                     .range(colorbrewer.Greens[7]);
 
-//use queue to load multiple files asynchronously
-queue()
-  .defer(d3.json, "./data/us.json")
-  .defer(d3.csv, "./data/profit-county.csv", function(d) { rateById.set(d.id, +d.rate); })
-  .await(ready);
+d3.json("./data/us.json", function(error, us) {
+    if (error) return console.error(error);
 
-  function ready(error, us) {
-    if (error) throw error;
+    svg.append("path")
+       .datum(topojson.feature(us, us.objects.nation))
+       .attr("class", "land")
+       .attr("d", path);
 
-    //add county borders
+    //add state borders
+  	svg.append("path")
+   		 .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
+   		 .attr("class", "border border--state")
+   		 .attr("d", path);
+
     svg.append("g")
-       .attr("class", "counties")
-       .selectAll("path")
+       .attr("class", "bubble")
+       .selectAll("circle")
        .data(topojson.feature(us, us.objects.counties).features)
-       .enter().append("path")
-       .attr("class", "county")
-       .attr("d", path)
-       .attr("fill", function(d) { return color(rateById.get(d.id)); });
+       .enter().append("circle")
+       .attr("transform", function(d) { return "translate(" + path.centroid(d) + ")"; })
+       .attr("r", function(d) { return Math.sqrt(parseFloat(d.properties.profit) * 0.00005) });
 
-       //add state borders
-     	svg.append("path")
-     		 .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
-     		 .attr("class", "border")
-     		 .attr("d", path);
-
-  };//end ready()
-
-d3.select(self.frameElement).style("height", height + "px");
+  });//end d3.json function
