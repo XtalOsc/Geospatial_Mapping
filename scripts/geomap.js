@@ -6,37 +6,47 @@ var width = 960,
 var path = d3.geo.path()
              .projection(null);
 
+var radius = d3.scale.sqrt()
+                     .domain([0, 1e6])
+                     .range([0, 15]);
+
 var svg = d3.select("body").append("svg")
             .attr("width", width)
             .attr("height", height);
 
-var color = d3.scale.linear()
-                    .domain([-100000, 500000])
+//map profit-by-county for merge
+var rateById = d3.map();
+
+//define color pallette using colorbrewer
+var color = d3.scale.quantize()
+                    .domain([0, .15])
                     .range(colorbrewer.Greens[7]);
 
-d3.json("./data/us.json", function(error, us) {
-  if (error) throw error;
+//use queue to load multiple files asynchronously
+queue()
+  .defer(d3.json, "./data/us.json")
+  .defer(d3.csv, "./data/profit-county.csv", function(d) { rateById.set(d.id, +d.rate); })
+  .await(ready);
 
-	//draw base
-  svg.append("path")
-     .datum(topojson.feature(us, us.objects.nation))
-     .attr("class", "land")
-     .attr("d", path);
+  function ready(error, us) {
+    if (error) throw error;
 
-	//add state borders
-	svg.append("path")
-		 .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
-		 .attr("class", "border state")
-		 .attr("d", path);
+    //add county borders
+    svg.append("g")
+       .attr("class", "counties")
+       .selectAll("path")
+       .data(topojson.feature(us, us.objects.counties).features)
+       .enter().append("path")
+       .attr("class", "county")
+       .attr("d", path)
+       .attr("fill", function(d) { return color(rateById.get(d.id)); });
 
-	//add county borders
-  svg.append("g")
-     .attr("class", "counties")
-     .selectAll("path")
-     .data(topojson.feature(us, us.objects.counties).features)
-     .enter().append("path")
-     .attr("class", "county")
-     .attr("d", path)
-     .attr("fill", function(d) {return color(d.properties.profit); });
+       //add state borders
+     	svg.append("path")
+     		 .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
+     		 .attr("class", "border")
+     		 .attr("d", path);
 
-});//end d3.json function
+  };//end ready()
+
+d3.select(self.frameElement).style("height", height + "px");

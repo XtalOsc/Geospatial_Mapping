@@ -1,13 +1,11 @@
-.land {
-  fill: #E5E5E5;
-  stroke: #777;
+.states {
+  fill: none;
+  stroke: #FFF;
   stroke-linejoin: round;
-  stroke-linecap: round;
 }
 
-.border {
+.counties {
   fill: none;
-  stroke: #777;
 }
 
 .county {
@@ -15,6 +13,7 @@
   stroke-width: .5;
 }
 
-.counties {
+.border {
   fill: none;
+  stroke: #777;
 }
