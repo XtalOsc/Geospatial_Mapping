@@ -33,6 +33,10 @@ d3.json("./data/us.json", function(error, us) {
        .attr("class", "bubble")
        .selectAll("circle")
        .data(topojson.feature(us, us.objects.counties).features)
+       //sort so larger bubbles are in the background
+       .sort(function(a, b){
+         return b.properties.profit - a.properties.profit;
+       })
        .enter().append("circle")
        .attr("transform", function(d) { return "translate(" + path.centroid(d) + ")"; })
        .attr("r", function(d) { return Math.sqrt(parseFloat(d.properties.profit) * 0.00005) });
