@@ -14,6 +14,12 @@ var radius = d3.scale.sqrt()
                      .domain([0, 1e6])
                      .range([0, 15]);
 
+function formatSales(val) {
+    var prefix = d3.formatPrefix(val);
+    var format = d3.format(".1f");
+    return format(prefix.scale(val)) + prefix.symbol;
+}//end formatSales
+
 d3.json("./data/us.json", function(error, us) {
     if (error) return console.error(error);
 
@@ -40,6 +46,7 @@ d3.json("./data/us.json", function(error, us) {
        .attr("transform", function(d) { return "translate(" + path.centroid(d) + ")"; })
        .attr("r", function(d) { return radius(d.properties.profit); })
        .append("title")
-       .text(function(d){ return d.properties.name + "\nProfit " + d.properties.profit;});
-
+       .text( function(d){
+         return d.properties.name + "\nProfit: $" + formatSales(d.properties.profit);
+       });//end text function
   });//end d3.json function
