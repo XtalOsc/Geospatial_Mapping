@@ -38,6 +38,8 @@ d3.json("./data/us.json", function(error, us) {
        })
        .enter().append("circle")
        .attr("transform", function(d) { return "translate(" + path.centroid(d) + ")"; })
-       .attr("r", function(d) { return radius(d.properties.profit); });
+       .attr("r", function(d) { return radius(d.properties.profit); })
+       .append("title")
+       .text(function(d){ return d.properties.name + "\nProfit " + d.properties.profit;});
 
   });//end d3.json function
