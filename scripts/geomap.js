@@ -37,15 +37,20 @@ legend.append("text")
       .attr("dy", "1.3em")
       .text(d3.format(".1s"));
 
-d3.json("./data/us.json", function(error, us) {
-    if (error) return console.error(error);
+queue()
+    .defer(d3.json, "./data/us.json")
+    .defer(d3.csv, "./data/category-sales.csv")
+    .await(ready);
+
+function ready(error, us, catSales) {
+    if (error) throw error;
 
     svg.append("path")
        .datum(topojson.feature(us, us.objects.nation))
        .attr("class", "land")
        .attr("d", path);
 
-    //add state borderscha
+    //add state borders
   	svg.append("path")
    		 .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
    		 .attr("class", "border")
@@ -66,4 +71,4 @@ d3.json("./data/us.json", function(error, us) {
        .text( function(d){
          return d.properties.name + "\nProfit: $" + formatSales(d.properties.profit);
        });//end text function
-  });//end d3.json function
+  };//end ready()
