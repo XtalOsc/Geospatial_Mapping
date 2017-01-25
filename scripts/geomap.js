@@ -45,10 +45,10 @@ d3.json("./data/us.json", function(error, us) {
        .attr("class", "land")
        .attr("d", path);
 
-    //add state borders
+    //add state borderscha
   	svg.append("path")
    		 .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
-   		 .attr("class", "border border--state")
+   		 .attr("class", "border")
    		 .attr("d", path);
 
     svg.append("g")
