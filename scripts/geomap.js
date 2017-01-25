@@ -20,6 +20,23 @@ function formatSales(val) {
     return format(prefix.scale(val)) + prefix.symbol;
 }//end formatSales
 
+//add legend
+var legend = svg.append("g")
+                .attr("class", "legend")
+                .attr("transform", "translate(" + (width - 50) + ',' + (height - 20) + ")")
+                .selectAll("g")
+                .data([1e6, 5e6, 1e7])
+                .enter().append("g");
+
+legend.append("circle")
+      .attr("cy", function(d) { return -radius(d); })
+      .attr("r", radius);
+
+legend.append("text")
+      .attr("y", function(d) {return -2 * radius(d); })
+      .attr("dy", "1.3em")
+      .text(d3.format(".1s"));
+
 d3.json("./data/us.json", function(error, us) {
     if (error) return console.error(error);
 
