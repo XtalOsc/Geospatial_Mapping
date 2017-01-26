@@ -37,6 +37,12 @@ legend.append("text")
       .attr("dy", "1.3em")
       .text(d3.format(".1s"));
 
+//add hovercard
+var barTooltip = d3.select("body").append("div")
+                   .attr("class","tooltip")
+                   .style("opacity", 0)
+                   .style("width", 600);
+
 queue()
     .defer(d3.json, "./data/us.json")
     .defer(d3.csv, "./data/category-sales.csv")
@@ -61,14 +67,34 @@ function ready(error, us, catSales) {
        .selectAll("circle")
        .data(topojson.feature(us, us.objects.counties).features)
        //sort so larger bubbles are in the background
-       .sort(function(a, b){
+       .sort(function(a, b) {
          return b.properties.profit - a.properties.profit;
        })
        .enter().append("circle")
        .attr("transform", function(d) { return "translate(" + path.centroid(d) + ")"; })
        .attr("r", function(d) { return radius(d.properties.profit); })
-       .append("title")
-       .text( function(d){
-         return d.properties.name + "\nProfit: $" + formatSales(d.properties.profit);
-       });//end text function
+
+       .on("mouseover", function(d) {
+         var circleId = d.id;
+
+         barTooltip.transition()
+                   .duration(500)
+                   .style("opacity", .7)
+
+         var tip = "<h3>" + d.properties.name + "</h3>";
+         tip += "<strong>Orders:</strong> " + d.properties.orders + "<br />";
+         tip += "<strong>Profit:</strong> $" + formatSales(d.properties.profit) + "<br />";
+         tip += "<h4>Category Sales:</h4>";
+
+         barTooltip.html(tip)
+                   .style("left", (d3.event.pageX) + "px")
+                   .style("top", (d3.event.pageY) + "px");
+       })//end on mouseover
+       .on("mouseout", function(d) {
+         barTooltip.transition()
+                   .duration(500)
+                   .style("opacity", 0);
+       });//end mouseout
   };//end ready()
+
+  	d3.select(self.frameElement).style("height", height + "px");
