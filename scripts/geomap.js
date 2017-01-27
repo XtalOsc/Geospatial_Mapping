@@ -89,6 +89,54 @@ function ready(error, us, catSales) {
          barTooltip.html(tip)
                    .style("left", (d3.event.pageX) + "px")
                    .style("top", (d3.event.pageY) + "px");
+
+         var margin = { top:20, right: 30, bottom: 30, left:40 },
+             height = 60,
+             width = 200;
+
+         var x = d3.scale.ordinal()
+                         .rangeRoundBands([0, width], .1);
+
+         var y = d3.scale.linear()
+                         .range([height, 0]);
+
+         var xAxis = d3.svg.axis()
+                           .scale(x)
+                           .orient("bottom");
+
+         var yAxis = d3.svg.axis()
+                           .scale(y)
+                           .orient("left")
+                           .tickFormat(d3.format("s"))
+                           .ticks(2);
+
+         var chart = barTooltip.append("svg")
+                               .attr("width", width + margin.left + margin.right)
+                               .attr("height", height + margin.top + margin.bottom)
+                               .append("g")
+                               .attr("transform", "translate(" + margin.left + ',' + margin.top + ")");
+
+         x.domain(catSales.map(function(d) { return d.category; }));
+         y.domain([0, d3.max(catSales.filter(function(d) { return d.id == circleId}), function(d) { return d.sales; })]);
+
+         chart.append("g")
+              .attr("class", "x-axis")
+              .attr("transform", "translate(0, " + height + ")")
+              .call(xAxis);
+
+         chart.append("g")
+              .attr("class", "y-axis")
+              .call(yAxis);
+
+         chart.selectAll("#barChart")
+              .data(catSales)
+              .enter().append("rect")
+              .filter(function(d){ return d.id == circleId; })
+              .attr("class", "bar")
+              .attr("x", function(d){ return x(d.category); })
+              .attr("y", function(d) { return y(d.sales); })
+              .attr("height", function(d) { return height - y(d.sales); })
+              .attr("width", x.rangeBand());
        })//end on mouseover
        .on("mouseout", function(d) {
          barTooltip.transition()
@@ -97,4 +145,4 @@ function ready(error, us, catSales) {
        });//end mouseout
   };//end ready()
 
-  	d3.select(self.frameElement).style("height", height + "px");
+d3.select(self.frameElement).style("height", height + "px");
